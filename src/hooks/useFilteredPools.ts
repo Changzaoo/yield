@@ -82,9 +82,9 @@ export const useFilteredPools = (pools: RichPool[] | undefined, filters: PoolFil
       }
     }
 
-    // Safe only (riskScore >= 60)
+    // Safe only: "Baixo" risk label threshold
     if (filters.safeOnly) {
-      result = result.filter((p) => p.riskScore >= 60)
+      result = result.filter((p) => p.riskScore >= 75)
     }
 
     // Sort
