@@ -42,11 +42,9 @@ export const Sidebar = ({ collapsed, onToggle }: SidebarProps) => {
     >
       {/* Logo */}
       <div className={cn('flex items-center h-16 border-b border-[#1e2433] px-4', collapsed ? 'justify-center' : 'gap-3')}>
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center flex-shrink-0">
-          <span className="text-white font-bold text-sm">Y</span>
-        </div>
+        <img src="/favicon.svg" alt="Crescer" className="w-8 h-8 shrink-0 object-contain" />
         {!collapsed && (
-          <span className="font-bold text-[#e8eaf0] text-base tracking-tight">YieldScope</span>
+          <span className="font-bold text-[#e8eaf0] text-base tracking-tight">Crescer</span>
         )}
       </div>
 

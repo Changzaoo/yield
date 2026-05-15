@@ -63,7 +63,7 @@ Não necessariamente. Um TVL alto reduz alguns riscos, mas:
 - Não garante que o código foi auditado corretamente
 - Não elimina risco de manipulação de oráculos
 
-📊 **Fonte dos dados:** O YieldScope usa a API do DefiLlama, referência global em dados DeFi, para exibir os TVLs em tempo real.`,
+📊 **Fonte dos dados:** O Crescer usa a API do DefiLlama, referência global em dados DeFi, para exibir os TVLs em tempo real.`,
   },
   {
     id: 'apr-vs-apy',
@@ -335,11 +335,11 @@ onde k = nova_razão_de_preço / razão_original
     title: 'Como Usar os Filtros de Segurança',
     level: 'Avançado',
     emoji: '🛡️',
-    summary: 'Aprenda a usar os filtros do YieldScope para encontrar oportunidades com menor risco estimado.',
-    tags: ['avançado', 'YieldScope', 'filtros', 'segurança'],
-    content: `**Guia dos Filtros de Segurança do YieldScope**
+    summary: 'Aprenda a usar os filtros do Crescer para encontrar oportunidades com menor risco estimado.',
+    tags: ['avançado', 'Crescer', 'filtros', 'segurança'],
+    content: `**Guia dos Filtros de Segurança do Crescer**
 
-O YieldScope calcula um **Score de Risco** (0-100) para cada pool baseado em múltiplos fatores.
+O Crescer calcula um **Score de Risco** (0-100) para cada pool baseado em múltiplos fatores.
 
 **Como o score é calculado:**
 

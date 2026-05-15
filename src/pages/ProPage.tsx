@@ -173,7 +173,7 @@ export const ProPage = () => {
       <div className="text-center py-8 space-y-3">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-sm font-medium">
           <Zap size={14} />
-          YieldScope PRO
+          Crescer PRO
         </div>
         <h1 className="text-3xl font-bold text-[#e8eaf0]">
           Desbloqueie o potencial completo
@@ -278,8 +278,8 @@ export const ProPage = () => {
         <div className="space-y-3">
           {[
             {
-              q: 'O YieldScope PRO executa transações por mim?',
-              a: 'Não. O YieldScope é uma plataforma de análise e descoberta. Todas as operações são realizadas diretamente nos protocolos DeFi.',
+              q: 'O Crescer PRO executa transações por mim?',
+              a: 'Não. O Crescer é uma plataforma de análise e descoberta. Todas as operações são realizadas diretamente nos protocolos DeFi.',
             },
             {
               q: 'Os dados são em tempo real?',
@@ -304,7 +304,7 @@ export const ProPage = () => {
 
       {/* Disclaimer */}
       <div className="text-xs text-[#5a6278] text-center">
-        Nenhuma funcionalidade do YieldScope constitui recomendação financeira.
+        Nenhuma funcionalidade do Crescer constitui recomendação financeira.
         Todo rendimento DeFi envolve risco. Invista com responsabilidade.
       </div>
     </div>
