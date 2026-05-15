@@ -1,38 +1,33 @@
 import type { Pool, RichPool, RiskLabel, PoolType } from '@/types/defi'
 import { isTrustedProtocol } from '@/config/protocols'
+import { classifyPoolType } from '@/utils/poolClassifiers'
 
 export const calculateRiskScore = (pool: Pool): number => {
   let score = 50
 
-  // TVL scoring
   if (pool.tvlUsd >= 100_000_000) score += 25
   else if (pool.tvlUsd >= 10_000_000) score += 15
   else if (pool.tvlUsd >= 1_000_000) score += 8
   else if (pool.tvlUsd < 100_000) score -= 15
 
-  // Stablecoin
   if (pool.stablecoin) score += 10
 
-  // APY scoring
   const apy = pool.apy ?? 0
   if (apy >= 1 && apy <= 20) score += 20
   else if (apy > 20 && apy <= 60) score += 10
   else if (apy > 60 && apy <= 100) score += 0
   else if (apy > 100 && apy <= 500) score -= 20
-  else if (apy > 500) score -= 35
+  else if (apy > 500 && apy <= 1000) score -= 30
+  else if (apy > 1000) score -= 40
 
-  // IL risk
   if (pool.ilRisk === 'no' || pool.ilRisk === 'none') score += 15
   else if (pool.ilRisk === 'yes') score -= 15
 
-  // Exposure
   if (pool.exposure === 'single') score += 10
   else if (pool.exposure === 'multi') score -= 5
 
-  // Trusted protocol
   if (isTrustedProtocol(pool.project)) score += 10
 
-  // Reward-heavy pools can be riskier
   const rewardShare = pool.apyReward != null && apy > 0 ? pool.apyReward / apy : 0
   if (rewardShare > 0.8 && apy > 20) score -= 10
 
@@ -55,61 +50,38 @@ export const getRiskColor = (label: RiskLabel): string => {
   }
 }
 
-export const inferPoolType = (pool: Pool): PoolType => {
-  const sym = pool.symbol?.toLowerCase() ?? ''
-  const proj = pool.project?.toLowerCase() ?? ''
-  const meta = pool.poolMeta?.toLowerCase() ?? ''
+export const getRiskScoreFactors = (pool: Pool): { label: string; points: number }[] => {
+  const factors: { label: string; points: number }[] = []
+  const apy = pool.apy ?? 0
 
-  if (
-    proj.includes('aave') ||
-    proj.includes('compound') ||
-    proj.includes('morpho') ||
-    proj.includes('venus') ||
-    proj.includes('radiant') ||
-    meta.includes('lend') ||
-    sym.includes('lend')
-  ) return 'lending'
+  if (pool.tvlUsd >= 100_000_000) factors.push({ label: 'TVL > $100M', points: 25 })
+  else if (pool.tvlUsd >= 10_000_000) factors.push({ label: 'TVL > $10M', points: 15 })
+  else if (pool.tvlUsd >= 1_000_000) factors.push({ label: 'TVL > $1M', points: 8 })
+  else if (pool.tvlUsd < 100_000) factors.push({ label: 'TVL < $100K', points: -15 })
 
-  if (
-    proj.includes('lido') ||
-    proj.includes('rocket') ||
-    proj.includes('frax') ||
-    proj.includes('stakefish') ||
-    proj.includes('marinade') ||
-    proj.includes('jito') ||
-    proj.includes('sanctum') ||
-    meta.includes('stake') ||
-    sym.startsWith('st') ||
-    sym.includes('lst')
-  ) return 'staking'
+  if (pool.stablecoin) factors.push({ label: 'Stablecoin', points: 10 })
 
-  if (
-    proj.includes('uniswap') ||
-    proj.includes('curve') ||
-    proj.includes('balancer') ||
-    proj.includes('pancake') ||
-    proj.includes('sushi') ||
-    proj.includes('raydium') ||
-    proj.includes('orca') ||
-    meta.includes('lp') ||
-    sym.includes('-')
-  ) return 'liquidity'
+  if (apy >= 1 && apy <= 20) factors.push({ label: 'APY conservador', points: 20 })
+  else if (apy > 20 && apy <= 60) factors.push({ label: 'APY moderado', points: 10 })
+  else if (apy > 100 && apy <= 500) factors.push({ label: 'APY extremo', points: -20 })
+  else if (apy > 500 && apy <= 1000) factors.push({ label: 'APY muito extremo', points: -30 })
+  else if (apy > 1000) factors.push({ label: 'APY suspeito', points: -40 })
 
-  if (
-    proj.includes('yearn') ||
-    proj.includes('beefy') ||
-    proj.includes('convex') ||
-    meta.includes('vault')
-  ) return 'vault'
+  if (pool.ilRisk === 'no' || pool.ilRisk === 'none') factors.push({ label: 'Sem IL risk', points: 15 })
+  else if (pool.ilRisk === 'yes') factors.push({ label: 'IL risk presente', points: -15 })
 
-  if (
-    proj.includes('farm') ||
-    meta.includes('farm') ||
-    (pool.apyReward != null && pool.apyReward > 0 && pool.apyBase === 0)
-  ) return 'farm'
+  if (pool.exposure === 'single') factors.push({ label: 'Exposição single', points: 10 })
+  else if (pool.exposure === 'multi') factors.push({ label: 'Exposição multi', points: -5 })
 
-  return 'other'
+  if (isTrustedProtocol(pool.project)) factors.push({ label: 'Protocolo verificado', points: 10 })
+
+  const rewardShare = pool.apyReward != null && apy > 0 ? pool.apyReward / apy : 0
+  if (rewardShare > 0.8 && apy > 20) factors.push({ label: 'APY reward-heavy', points: -10 })
+
+  return factors
 }
+
+export const inferPoolType = (pool: Pool): PoolType => classifyPoolType(pool)
 
 export const enrichPool = (pool: Pool): RichPool => {
   const riskScore = calculateRiskScore(pool)
@@ -117,7 +89,7 @@ export const enrichPool = (pool: Pool): RichPool => {
     ...pool,
     riskScore,
     riskLabel: getRiskLabel(riskScore),
-    poolType: inferPoolType(pool),
+    poolType: classifyPoolType(pool),
     isTrustedProtocol: isTrustedProtocol(pool.project),
   }
 }

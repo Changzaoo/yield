@@ -7,6 +7,21 @@ export const useFilteredPools = (pools: RichPool[] | undefined, filters: PoolFil
 
     let result = [...pools]
 
+    // Exclude extreme APY unless opted in
+    if (!filters.includeExtremeApy) {
+      result = result.filter((p) => p.apy <= 1000)
+    }
+
+    // Exclude IL risk pools
+    if (filters.excludeIlRisk) {
+      result = result.filter((p) => p.ilRisk !== 'yes')
+    }
+
+    // Single exposure only
+    if (filters.singleExposureOnly) {
+      result = result.filter((p) => p.exposure === 'single')
+    }
+
     // Text search
     if (filters.search.trim()) {
       const q = filters.search.toLowerCase()
@@ -47,9 +62,24 @@ export const useFilteredPools = (pools: RichPool[] | undefined, filters: PoolFil
       result = result.filter((p) => p.apy <= filters.maxApy)
     }
 
-    // Pool type
+    // Pool type / meta-filter
     if (filters.poolType && filters.poolType !== 'all') {
-      result = result.filter((p) => p.poolType === filters.poolType)
+      switch (filters.poolType) {
+        case 'Stablecoin':
+          result = result.filter((p) => p.stablecoin)
+          break
+        case 'Single':
+          result = result.filter((p) => p.exposure === 'single')
+          break
+        case 'HighAPY':
+          result = result.filter((p) => p.apy > 100)
+          break
+        case 'LowRisk':
+          result = result.filter((p) => p.riskScore >= 70)
+          break
+        default:
+          result = result.filter((p) => p.poolType === filters.poolType)
+      }
     }
 
     // Safe only (riskScore >= 60)
@@ -66,6 +96,7 @@ export const useFilteredPools = (pools: RichPool[] | undefined, filters: PoolFil
         case 'riskScore': av = a.riskScore; bv = b.riskScore; break
         case 'apyBase': av = a.apyBase ?? 0; bv = b.apyBase ?? 0; break
         case 'apyReward': av = a.apyReward ?? 0; bv = b.apyReward ?? 0; break
+        case 'volumeUsd1d': av = a.volumeUsd1d ?? 0; bv = b.volumeUsd1d ?? 0; break
         case 'chain': return filters.sortDir === 'asc'
           ? (a.chain ?? '').localeCompare(b.chain ?? '')
           : (b.chain ?? '').localeCompare(a.chain ?? '')

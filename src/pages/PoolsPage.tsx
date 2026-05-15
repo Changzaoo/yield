@@ -6,6 +6,7 @@ import { useFilteredPools } from '@/hooks/useFilteredPools'
 import { useCurrency } from '@/components/layout/AppLayout'
 import { PoolFiltersPanel } from '@/components/pools/PoolFilters'
 import { PoolTable } from '@/components/pools/PoolTable'
+import { PoolRankingCards } from '@/components/pools/PoolRankingCards'
 import { MetricCard } from '@/components/ui/MetricCard'
 import { SkeletonMetricCards, SkeletonTable } from '@/components/ui/Skeleton'
 import { ErrorState } from '@/components/ui/ErrorState'
@@ -13,7 +14,7 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { Disclaimer } from '@/components/ui/Disclaimer'
 import { Button } from '@/components/ui/Button'
 import { formatTVL, formatAPY } from '@/utils/format'
-import type { PoolFilters } from '@/types/defi'
+import type { PoolFilters, RichPool } from '@/types/defi'
 import { useQuery } from '@tanstack/react-query'
 import { fetchUsdBrlRate } from '@/services/defillama'
 
@@ -29,13 +30,22 @@ const DEFAULT_FILTERS: PoolFilters = {
   safeOnly: false,
   sortBy: 'tvlUsd',
   sortDir: 'desc',
+  pageSize: 50,
+  includeExtremeApy: false,
+  excludeIlRisk: false,
+  singleExposureOnly: false,
 }
 
-const exportCSV = (pools: ReturnType<typeof useFilteredPools>['filtered']) => {
-  const headers = ['Symbol', 'Project', 'Chain', 'TVL USD', 'APY', 'APY Base', 'APY Reward', 'Stablecoin', 'Type', 'Risk Score', 'Risk Label']
+const exportCSV = (pools: RichPool[]) => {
+  const headers = [
+    'Symbol', 'Project', 'Chain', 'TVL USD', 'APY', 'APY Base', 'APY Reward',
+    'Volume 24h', 'Stablecoin', 'IL Risk', 'Exposure', 'Type', 'Risk Score', 'Risk Label',
+  ]
   const rows = pools.map((p) => [
-    p.symbol, p.project, p.chain, p.tvlUsd, p.apy, p.apyBase ?? '', p.apyReward ?? '',
-    p.stablecoin, p.poolType, p.riskScore, p.riskLabel,
+    p.symbol, p.project, p.chain,
+    p.tvlUsd, p.apy, p.apyBase ?? '', p.apyReward ?? '',
+    p.volumeUsd1d ?? '', p.stablecoin, p.ilRisk ?? '',
+    p.exposure ?? '', p.poolType, p.riskScore, p.riskLabel,
   ])
   const csv = [headers, ...rows].map((r) => r.join(',')).join('\n')
   const blob = new Blob([csv], { type: 'text/csv' })
@@ -57,9 +67,14 @@ export const PoolsPage = () => {
   const [page, setPage] = useState(1)
 
   const { data: pools, isLoading, isError, error, refetch } = useYieldPools()
-  const { data: usdBrl = 1 } = useQuery({ queryKey: ['usd-brl'], queryFn: fetchUsdBrlRate, staleTime: 60 * 60 * 1000 })
+  const { data: usdBrl = 1 } = useQuery({
+    queryKey: ['usd-brl'],
+    queryFn: fetchUsdBrlRate,
+    staleTime: 60 * 60 * 1000,
+  })
 
-  const { filtered, total, tvlTotal, apyAvg, apyMax, chains: chainCount, protocols: protocolCount } = useFilteredPools(pools, filters)
+  const { filtered, total, tvlTotal, apyAvg, apyMax, chains: chainCount, protocols: protocolCount } =
+    useFilteredPools(pools, filters)
 
   const chainOptions = useMemo(() => {
     if (!pools) return []
@@ -81,23 +96,22 @@ export const PoolsPage = () => {
     setPage(1)
   }
 
-  // Sync search param
   useEffect(() => {
     const q = searchParams.get('q')
     if (q) updateFilter({ search: q })
   }, [searchParams])
 
   return (
-    <div className="space-y-5">
-      {/* Page header */}
-      <div className="flex items-center justify-between">
+    <div className="space-y-5 max-w-[1400px]">
+      {/* Header */}
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-xl font-bold text-[#e8eaf0] flex items-center gap-2">
             <LayoutGrid size={20} className="text-teal-400" />
-            Pools DeFi
+            Liquidity Pool Analytics
           </h1>
           <p className="text-sm text-[#5a6278] mt-0.5">
-            Descubra as melhores oportunidades de rendimento em DeFi
+            Descubra e compare as melhores oportunidades DeFi em tempo real
           </p>
         </div>
         <div className="flex gap-2">
@@ -121,6 +135,11 @@ export const PoolsPage = () => {
           )}
         </div>
       </div>
+
+      {/* Ranking cards */}
+      {!isLoading && !isError && (
+        <PoolRankingCards pools={pools} onApplyFilter={updateFilter} />
+      )}
 
       {/* Metrics */}
       {isLoading ? (
@@ -151,7 +170,6 @@ export const PoolsPage = () => {
         />
       </div>
 
-      {/* Disclaimer */}
       <Disclaimer compact />
 
       {/* Table */}
@@ -171,9 +189,11 @@ export const PoolsPage = () => {
       ) : (
         <PoolTable
           pools={filtered}
+          tvlTotal={tvlTotal}
           currency={currency}
           usdBrl={usdBrl}
           page={page}
+          pageSize={filters.pageSize}
           onPageChange={setPage}
         />
       )}

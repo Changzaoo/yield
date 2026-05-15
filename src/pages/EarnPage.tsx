@@ -20,11 +20,11 @@ const COMMON_TOKENS = ['USDC', 'USDT', 'ETH', 'BTC', 'SOL', 'DAI', 'WBTC', 'MATI
 
 const getPoolExplanation = (pool: RichPool): string => {
   const rewardPct = pool.apyReward && pool.apy > 0 ? (pool.apyReward / pool.apy) * 100 : 0
-  if (pool.poolType === 'lending') return `Empreste ${pool.symbol?.split('-')[0] ?? 'tokens'} e receba juros sobre o valor depositado.`
-  if (pool.poolType === 'staking') return `Faça stake dos tokens e receba recompensas pela validação da rede.`
-  if (pool.poolType === 'liquidity' && rewardPct > 80) return `Forneça liquidez e receba tokens de incentivo (${formatAPY(pool.apyReward)} reward APY). Atenção: reward tokens podem ser voláteis.`
-  if (pool.poolType === 'liquidity') return `Forneça liquidez para a pool e receba uma parte das taxas de swap.`
-  if (pool.poolType === 'vault') return `Deposite e o vault otimiza automaticamente os rendimentos para você.`
+  if (pool.poolType === 'Lending') return `Empreste ${pool.symbol?.split('-')[0] ?? 'tokens'} e receba juros sobre o valor depositado.`
+  if (pool.poolType === 'Staking') return `Faça stake dos tokens e receba recompensas pela validação da rede.`
+  if ((pool.poolType === 'LP' || pool.poolType === 'Stable') && rewardPct > 80) return `Forneça liquidez e receba tokens de incentivo (${formatAPY(pool.apyReward)} reward APY). Atenção: reward tokens podem ser voláteis.`
+  if (pool.poolType === 'LP' || pool.poolType === 'Stable') return `Forneça liquidez para a pool e receba uma parte das taxas de swap.`
+  if (pool.poolType === 'Farm') return `Deposite e o vault otimiza automaticamente os rendimentos para você.`
   return `Rendimento gerado via ${pool.project} na chain ${pool.chain}.`
 }
 

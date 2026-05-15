@@ -38,7 +38,7 @@ export interface RichPool extends Pool {
 }
 
 export type RiskLabel = 'Baixo' | 'Moderado' | 'Alto' | 'Crítico'
-export type PoolType = 'lending' | 'staking' | 'liquidity' | 'vault' | 'farm' | 'other'
+export type PoolType = 'Stable' | 'Single' | 'LP' | 'Lending' | 'Staking' | 'RWA' | 'Farm' | 'Outro'
 
 export interface Protocol {
   id: string
@@ -83,9 +83,13 @@ export interface PoolFilters {
   safeOnly: boolean
   sortBy: SortField
   sortDir: 'asc' | 'desc'
+  pageSize: 20 | 50 | 100
+  includeExtremeApy: boolean
+  excludeIlRisk: boolean
+  singleExposureOnly: boolean
 }
 
-export type SortField = 'apy' | 'tvlUsd' | 'chain' | 'project' | 'riskScore' | 'apyBase' | 'apyReward'
+export type SortField = 'apy' | 'tvlUsd' | 'chain' | 'project' | 'riskScore' | 'apyBase' | 'apyReward' | 'volumeUsd1d'
 
 export interface TokenPrice {
   decimals: number
