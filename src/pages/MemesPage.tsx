@@ -44,6 +44,32 @@ const formatChange = (pct?: number) => {
   return `${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%`
 }
 
+const TOKEN_ICON_SIZES = {
+  sm: { box: 'w-7 h-7', flame: 12 },
+  md: { box: 'w-9 h-9', flame: 16 },
+} as const
+
+const TokenIcon = ({ src, variant = 'sm' }: { src?: string; variant?: 'sm' | 'md' }) => {
+  const [failed, setFailed] = useState(false)
+  const { box, flame } = TOKEN_ICON_SIZES[variant]
+  if (src && !failed) {
+    return (
+      <img
+        src={src}
+        alt=""
+        referrerPolicy="no-referrer"
+        onError={() => setFailed(true)}
+        className={`${box} rounded-full bg-[#1e2433] shrink-0 object-cover`}
+      />
+    )
+  }
+  return (
+    <div className={`${box} rounded-full bg-gradient-to-br from-amber-500/30 to-orange-500/30 shrink-0 flex items-center justify-center`}>
+      <Flame size={flame} className="text-amber-400" />
+    </div>
+  )
+}
+
 interface MemeRowProps {
   token: MemeToken
   rank: number
@@ -76,13 +102,7 @@ const MemeRow = ({ token, rank, isFav, onFav }: MemeRowProps) => {
       {/* Icon + name */}
       <td className="px-3 py-2.5">
         <div className="flex items-center gap-2">
-          {token.icon ? (
-            <img src={token.icon} alt="" className="w-7 h-7 rounded-full bg-[#1e2433] flex-shrink-0 object-cover" />
-          ) : (
-            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-amber-500/30 to-orange-500/30 flex-shrink-0 flex items-center justify-center">
-              <Flame size={12} className="text-amber-400" />
-            </div>
-          )}
+          <TokenIcon src={token.icon} variant="sm" />
           <div className="min-w-0">
             <div className="font-semibold text-[#e8eaf0] text-xs truncate max-w-[120px]">
               {p?.baseToken.symbol ?? token.tokenAddress.slice(0, 6)}
@@ -422,13 +442,7 @@ export const MemesPage = () => {
                   className="rounded-xl border border-[#2a3040] bg-[#111318] p-4 space-y-2.5"
                 >
                   <div className="flex items-center gap-2.5">
-                    {token.icon ? (
-                      <img src={token.icon} alt="" className="w-9 h-9 rounded-full bg-[#1e2433] flex-shrink-0 object-cover" />
-                    ) : (
-                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-amber-500/20 to-orange-500/20 flex-shrink-0 flex items-center justify-center">
-                        <Flame size={16} className="text-amber-400" />
-                      </div>
-                    )}
+                    <TokenIcon src={token.icon} variant="md" />
                     <div className="flex-1 min-w-0">
                       <div className="font-bold text-[#e8eaf0] text-sm">{p?.baseToken.symbol ?? '—'}</div>
                       <div className="text-[11px] text-[#5a6278] truncate">{p?.baseToken.name ?? token.tokenAddress.slice(0, 12)}</div>
