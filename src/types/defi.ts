@@ -73,7 +73,7 @@ export interface Protocol {
 
 export interface PoolFilters {
   search: string
-  chain: string
+  chains: string[]
   project: string
   stablecoinOnly: boolean
   minTvl: number

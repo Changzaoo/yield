@@ -18,9 +18,11 @@ import type { PoolFilters, RichPool } from '@/types/defi'
 import { useQuery } from '@tanstack/react-query'
 import { fetchUsdBrlRate } from '@/services/defillama'
 
+const DEFAULT_CHAINS = ['Ethereum', 'Solana', 'BSC', 'Base', 'Polygon', 'Arbitrum', 'Hyperliquid', 'Avalanche', 'Sui']
+
 const DEFAULT_FILTERS: PoolFilters = {
   search: '',
-  chain: 'all',
+  chains: DEFAULT_CHAINS,
   project: 'all',
   stablecoinOnly: false,
   minTvl: 0,

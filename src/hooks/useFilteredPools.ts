@@ -34,9 +34,10 @@ export const useFilteredPools = (pools: RichPool[] | undefined, filters: PoolFil
       )
     }
 
-    // Chain filter
-    if (filters.chain && filters.chain !== 'all') {
-      result = result.filter((p) => p.chain?.toLowerCase() === filters.chain.toLowerCase())
+    // Chain filter (empty array = all chains)
+    if (filters.chains.length > 0) {
+      const selected = filters.chains.map((c) => c.toLowerCase())
+      result = result.filter((p) => selected.includes(p.chain?.toLowerCase() ?? ''))
     }
 
     // Project filter

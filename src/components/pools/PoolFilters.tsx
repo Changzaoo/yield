@@ -13,6 +13,11 @@ interface PoolFiltersProps {
   onReset: () => void
 }
 
+const MAIN_CHAINS = [
+  'Ethereum', 'Solana', 'BSC', 'Base', 'Polygon',
+  'Arbitrum', 'Hyperliquid', 'Avalanche', 'Sui',
+]
+
 const POOL_TYPES = [
   { value: 'all',         label: 'Todos os tipos' },
   { value: 'Stablecoin',  label: 'Stablecoin' },
@@ -38,12 +43,20 @@ const SORT_OPTIONS: { value: SortField; label: string }[] = [
   { value: 'project',      label: 'Protocolo' },
 ]
 
+const toggleChain = (current: string[], chain: string): string[] =>
+  current.includes(chain) ? current.filter((c) => c !== chain) : [...current, chain]
+
 export const PoolFiltersPanel = ({ filters, onChange, chains, protocols, onReset }: PoolFiltersProps) => {
   const [showAdvanced, setShowAdvanced] = useState(false)
 
+  // Chains not in MAIN_CHAINS list available in data
+  const extraChains = chains.filter((c) => !MAIN_CHAINS.includes(c))
+
+  const selectedExtra = filters.chains.find((c) => !MAIN_CHAINS.includes(c)) ?? 'all'
+
   const hasFilters =
     filters.search ||
-    (filters.chain && filters.chain !== 'all') ||
+    filters.chains.length > 0 ||
     (filters.project && filters.project !== 'all') ||
     filters.stablecoinOnly ||
     filters.minTvl > 0 ||
@@ -53,6 +66,8 @@ export const PoolFiltersPanel = ({ filters, onChange, chains, protocols, onReset
     filters.safeOnly ||
     filters.excludeIlRisk ||
     filters.singleExposureOnly
+
+  const allMainSelected = MAIN_CHAINS.every((c) => filters.chains.includes(c))
 
   return (
     <div className="space-y-3">
@@ -83,17 +98,75 @@ export const PoolFiltersPanel = ({ filters, onChange, chains, protocols, onReset
         )}
       </div>
 
-      {/* Filters grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
-        <Select
-          value={filters.chain}
-          onChange={(e) => onChange({ chain: e.target.value })}
-          options={[
-            { value: 'all', label: 'Todas chains' },
-            ...chains.map((c) => ({ value: c, label: c })),
-          ]}
-        />
+      {/* Chain toggle row */}
+      <div className="flex flex-wrap items-center gap-1.5">
+        <span className="text-[10px] text-[#5a6278] font-medium mr-1 shrink-0">Redes:</span>
 
+        {/* All / none */}
+        <button
+          onClick={() => onChange({ chains: [] })}
+          className={`px-2.5 py-1 rounded-full text-[11px] font-medium border transition-colors ${
+            filters.chains.length === 0
+              ? 'bg-teal-500/15 text-teal-400 border-teal-500/40'
+              : 'text-[#5a6278] border-[#2a3040] hover:border-[#3d4560] hover:text-[#8b93a8]'
+          }`}
+        >
+          Todas
+        </button>
+
+        {MAIN_CHAINS.map((chain) => {
+          const active = filters.chains.includes(chain)
+          return (
+            <button
+              key={chain}
+              onClick={() => onChange({ chains: toggleChain(filters.chains, chain) })}
+              className={`px-2.5 py-1 rounded-full text-[11px] font-medium border transition-colors ${
+                active
+                  ? 'bg-teal-500/15 text-teal-400 border-teal-500/40'
+                  : 'text-[#5a6278] border-[#2a3040] hover:border-[#3d4560] hover:text-[#8b93a8]'
+              }`}
+            >
+              {chain}
+            </button>
+          )
+        })}
+
+        {/* All-main shortcut */}
+        <button
+          onClick={() => onChange({ chains: MAIN_CHAINS })}
+          className={`px-2.5 py-1 rounded-full text-[11px] font-medium border transition-colors ml-1 ${
+            allMainSelected && filters.chains.length === MAIN_CHAINS.length
+              ? 'bg-indigo-500/15 text-indigo-400 border-indigo-500/40'
+              : 'text-[#5a6278] border-[#2a3040] hover:border-[#3d4560] hover:text-[#8b93a8]'
+          }`}
+        >
+          Principais
+        </button>
+
+        {/* Extra chain dropdown if data has more */}
+        {extraChains.length > 0 && (
+          <select
+            value={selectedExtra}
+            onChange={(e) => {
+              const val = e.target.value
+              if (val === 'all') {
+                onChange({ chains: filters.chains.filter((c) => MAIN_CHAINS.includes(c)) })
+              } else {
+                onChange({ chains: [...filters.chains.filter((c) => MAIN_CHAINS.includes(c)), val] })
+              }
+            }}
+            className="px-2 py-1 rounded-full text-[11px] border border-[#2a3040] bg-[#0d0f14] text-[#5a6278] hover:border-[#3d4560] transition-colors outline-none cursor-pointer"
+          >
+            <option value="all">+ Outras redes</option>
+            {extraChains.map((c) => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
+        )}
+      </div>
+
+      {/* Filters grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
         <Select
           value={filters.project}
           onChange={(e) => onChange({ project: e.target.value })}
