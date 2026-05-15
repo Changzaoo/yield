@@ -13,6 +13,7 @@ const StakePage            = lazy(() => import('@/pages/StakePage').then(m => ({
 const WhaleTrackerPage     = lazy(() => import('@/pages/WhaleTrackerPage').then(m => ({ default: m.WhaleTrackerPage })))
 const BitcoinLabPage       = lazy(() => import('@/pages/BitcoinLabPage').then(m => ({ default: m.BitcoinLabPage })))
 const ProPage              = lazy(() => import('@/pages/ProPage').then(m => ({ default: m.ProPage })))
+const MemesPage            = lazy(() => import('@/pages/MemesPage').then(m => ({ default: m.MemesPage })))
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -46,6 +47,7 @@ function App() {
               <Route path="/stake"           element={<StakePage />} />
               <Route path="/whale-tracker"   element={<WhaleTrackerPage />} />
               <Route path="/bitcoin-lab"     element={<BitcoinLabPage />} />
+              <Route path="/memes"           element={<MemesPage />} />
               <Route path="/pro"             element={<ProPage />} />
               <Route path="*"               element={<Navigate to="/pools" replace />} />
             </Routes>

@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutGrid, TrendingUp, BookOpen, Coins, Eye, Zap } from 'lucide-react'
+import { LayoutGrid, TrendingUp, BookOpen, Coins, Eye, Flame, Zap } from 'lucide-react'
 import { cn } from '@/components/ui/cn'
 
 const mobileNav = [
@@ -8,6 +8,7 @@ const mobileNav = [
   { to: '/learn',        icon: BookOpen,    label: 'Learn' },
   { to: '/stake',        icon: Coins,       label: 'Stake' },
   { to: '/whale-tracker',icon: Eye,         label: 'Whales' },
+  { to: '/memes',        icon: Flame,       label: 'Memes' },
   { to: '/pro',          icon: Zap,         label: 'PRO' },
 ]
 

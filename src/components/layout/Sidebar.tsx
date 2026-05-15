@@ -9,6 +9,7 @@ import {
   Eye,
   Bitcoin,
   Zap,
+  Flame,
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react'
@@ -28,6 +29,7 @@ const navItems = [
   { to: '/stake',             icon: Coins,       label: 'Stake SOL',     badge: null },
   { to: '/whale-tracker',     icon: Eye,         label: 'Whale Tracker', badge: null },
   { to: '/bitcoin-lab',       icon: Bitcoin,     label: 'Bitcoin Lab',   badge: 'PRO' },
+  { to: '/memes',             icon: Flame,       label: 'Meme Radar',    badge: 'HOT' },
 ]
 
 export const Sidebar = ({ collapsed, onToggle }: SidebarProps) => {
